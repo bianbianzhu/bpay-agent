@@ -81,7 +81,7 @@ export class CLI {
    * Main run loop
    */
   async run(): Promise<void> {
-    // this.showWelcome();
+    this.showWelcome();
 
     while (true) {
       const userInput = await this.rl.prompt('\nYou: ');

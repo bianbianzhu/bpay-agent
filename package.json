@@ -6,11 +6,17 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "tsx src/index.ts",
-    "dev": "tsx watch src/index.ts",
+    "dev": "tsx src/index.ts",
     "build": "tsc",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": ["bpay", "agent", "langchain", "langgraph", "openai"],
+  "keywords": [
+    "bpay",
+    "agent",
+    "langchain",
+    "langgraph",
+    "openai"
+  ],
   "license": "MIT",
   "dependencies": {
     "@langchain/core": "^0.3.0",

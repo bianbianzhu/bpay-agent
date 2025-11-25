@@ -1,5 +1,5 @@
 import { ChatOpenAI } from '@langchain/openai';
-import { HumanMessage, AIMessage, SystemMessage, BaseMessage } from '@langchain/core/messages';
+import { HumanMessage, AIMessage, SystemMessage, BaseMessage, isAIMessage } from '@langchain/core/messages';
 import { StateGraph, START, END, MemorySaver, Annotation } from '@langchain/langgraph';
 import { ToolNode } from '@langchain/langgraph/prebuilt';
 import { bpayTools } from '../tools/index.js';
@@ -62,7 +62,7 @@ export class BPAYAgent {
     const shouldContinue = (state: typeof AgentState.State): 'tools' | '__end__' => {
       const lastMessage = state.messages[state.messages.length - 1];
 
-      if (lastMessage instanceof AIMessage && lastMessage.tool_calls?.length) {
+      if (isAIMessage(lastMessage) && lastMessage.tool_calls?.length) {
         return 'tools';
       }
       return '__end__';
