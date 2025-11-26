@@ -136,7 +136,7 @@ sequenceDiagram
 
 ```mermaid
 flowchart TD
-    START([User: "Pay my water bill"]) --> GET_USER
+    START([User: Pay my water bill]) --> GET_USER
 
     GET_USER[get_user<br/>Extract JWT, get userId]
     GET_USER --> GET_BILLERS
@@ -163,7 +163,7 @@ flowchart TD
 
     SHOW_ERROR --> END_FAIL
 
-    CONFIRM[CONFIRM PAYMENT<br/>"Pay $X to Biller?"<br/>Type 'yes' to confirm]
+    CONFIRM[CONFIRM PAYMENT<br/>Pay $X to Biller?<br/>Type 'yes' to confirm]
     CONFIRM --> USER_CONFIRM{User confirms?}
 
     USER_CONFIRM -->|No| END_CANCEL([End - Cancelled])
