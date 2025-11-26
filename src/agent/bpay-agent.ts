@@ -150,7 +150,7 @@ export class BPAYAgent {
     );
 
     const lastMessage = result.messages[result.messages.length - 1];
-    if (lastMessage instanceof AIMessage) {
+    if (AIMessage.isInstance(lastMessage)) {
       return typeof lastMessage.content === 'string'
         ? lastMessage.content
         : JSON.stringify(lastMessage.content);
