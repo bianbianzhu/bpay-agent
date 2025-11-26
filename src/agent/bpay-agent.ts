@@ -5,7 +5,6 @@ import { ToolNode } from '@langchain/langgraph/prebuilt';
 import { bpayTools } from '../tools/index.js';
 import { BPAY_SYSTEM_PROMPT } from './prompts/system.prompt.js';
 import { config } from '../config/index.js';
-import * as z from 'zod'
 
 // Define the state using Annotation
 const AgentState = Annotation.Root({
