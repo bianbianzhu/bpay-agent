@@ -1,10 +1,11 @@
 import { ChatOpenAI } from '@langchain/openai';
-import { HumanMessage, AIMessage, SystemMessage, BaseMessage, isAIMessage } from '@langchain/core/messages';
-import { StateGraph, START, END, MemorySaver, Annotation } from '@langchain/langgraph';
+import { HumanMessage, AIMessage, SystemMessage, type BaseMessage } from 'langchain';
+import { StateGraph, START, MemorySaver, Annotation } from '@langchain/langgraph';
 import { ToolNode } from '@langchain/langgraph/prebuilt';
 import { bpayTools } from '../tools/index.js';
 import { BPAY_SYSTEM_PROMPT } from './prompts/system.prompt.js';
 import { config } from '../config/index.js';
+import * as z from 'zod'
 
 // Define the state using Annotation
 const AgentState = Annotation.Root({
@@ -62,7 +63,7 @@ export class BPAYAgent {
     const shouldContinue = (state: typeof AgentState.State): 'tools' | '__end__' => {
       const lastMessage = state.messages[state.messages.length - 1];
 
-      if (isAIMessage(lastMessage) && lastMessage.tool_calls?.length) {
+      if (AIMessage.isInstance(lastMessage) && lastMessage.tool_calls?.length) {
         return 'tools';
       }
       return '__end__';
