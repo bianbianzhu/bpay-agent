@@ -1,6 +1,7 @@
 # BPAY Agent - Module Documentation
 
 ## Table of Contents
+
 1. [Entry Point](#1-entry-point)
 2. [Configuration Module](#2-configuration-module)
 3. [Agent Module](#3-agent-module)
@@ -19,17 +20,18 @@
 **Purpose**: Application bootstrap and initialization.
 
 ```typescript
-async function main(): Promise<void>
+async function main(): Promise<void>;
 ```
 
-| Aspect | Description |
-|--------|-------------|
-| **Validates** | `OPENAI_API_KEY` presence |
-| **Creates** | `CLI` instance |
-| **Runs** | Main REPL loop |
-| **Handles** | Fatal errors with graceful exit |
+| Aspect        | Description                     |
+| ------------- | ------------------------------- |
+| **Validates** | `OPENAI_API_KEY` presence       |
+| **Creates**   | `CLI` instance                  |
+| **Runs**      | Main REPL loop                  |
+| **Handles**   | Fatal errors with graceful exit |
 
 **Flow**:
+
 1. Check API key configuration
 2. Instantiate CLI
 3. Start run loop
@@ -49,15 +51,15 @@ export const config: {
   OPENAI_MODEL: string;
   MOCK_JWT_TOKEN: string;
   ENABLE_DEBUG_LOGGING: boolean;
-}
+};
 ```
 
-| Property | Source | Default | Notes |
-|----------|--------|---------|-------|
-| `OPENAI_API_KEY` | `process.env` | `''` | Required |
-| `OPENAI_MODEL` | `process.env` | `'openai/gpt-oss-20b'` | Model name |
-| `MOCK_JWT_TOKEN` | `process.env` | `'mock_jwt_token_001'` | Maps to user_001 |
-| `ENABLE_DEBUG_LOGGING` | `process.env` | `false` | Parsed as boolean |
+| Property               | Source        | Default                | Notes             |
+| ---------------------- | ------------- | ---------------------- | ----------------- |
+| `OPENAI_API_KEY`       | `process.env` | `''`                   | Required          |
+| `OPENAI_MODEL`         | `process.env` | `'openai/gpt-oss-20b'` | Model name        |
+| `MOCK_JWT_TOKEN`       | `process.env` | `'mock_jwt_token_001'` | Maps to user_001  |
+| `ENABLE_DEBUG_LOGGING` | `process.env` | `false`                | Parsed as boolean |
 
 ---
 
@@ -83,11 +85,12 @@ class BPAYAgent {
 constructor(apiKey?: string)
 ```
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `apiKey` | `string?` | Optional API key override |
+| Parameter | Type      | Description               |
+| --------- | --------- | ------------------------- |
+| `apiKey`  | `string?` | Optional API key override |
 
 **Initialization**:
+
 1. Validates API key (param or config)
 2. Creates `ChatOpenAI` instance with:
    - Model name from config
@@ -105,6 +108,7 @@ private createGraph(): CompiledStateGraph
 ```
 
 **State Definition** (via Annotation):
+
 ```typescript
 const AgentState = Annotation.Root({
   messages: Annotation<BaseMessage[]>({
@@ -114,14 +118,17 @@ const AgentState = Annotation.Root({
 });
 ```
 
+- for reducer, we can use the `messagesStateReducer` from `@langchain/langgraph` or a callback function that combines the previous and next messages.
+
 **Graph Nodes**:
 
-| Node | Type | Function |
-|------|------|----------|
+| Node    | Type     | Function                                  |
+| ------- | -------- | ----------------------------------------- |
 | `agent` | Function | Invokes LLM with system prompt + messages |
-| `tools` | ToolNode | Executes tool calls from LLM response |
+| `tools` | ToolNode | Executes tool calls from LLM response     |
 
 **Graph Edges**:
+
 ```
 START ──────────────────▶ agent
 agent ──(conditional)───▶ tools OR __end__
@@ -129,6 +136,7 @@ tools ──────────────────▶ agent
 ```
 
 **Routing Logic** (`shouldContinue`):
+
 - Returns `'tools'` if last message has tool_calls
 - Returns `'__end__'` otherwise
 
@@ -142,13 +150,14 @@ async *processMessage(
 ): AsyncGenerator<StreamEvent>
 ```
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `userMessage` | `string` | User's input text |
-| `threadId` | `string` | Conversation identifier |
-| `jwtToken` | `string` | User authentication token |
+| Parameter     | Type     | Description               |
+| ------------- | -------- | ------------------------- |
+| `userMessage` | `string` | User's input text         |
+| `threadId`    | `string` | Conversation identifier   |
+| `jwtToken`    | `string` | User authentication token |
 
 **Returns**: `AsyncGenerator<StreamEvent>` with events:
+
 - `token`: LLM output tokens
 - `tool_start`: Tool invocation started
 - `tool_end`: Tool invocation completed
@@ -184,27 +193,31 @@ Retrieves conversation history from checkpointer.
 **Purpose**: Defines agent behavior, constraints, and tool sequence.
 
 ```typescript
-export const BPAY_SYSTEM_PROMPT: string
+export const BPAY_SYSTEM_PROMPT: string;
 ```
 
 **Key Sections**:
 
 1. **Intent Classification**:
+
    - BPAY-related: bill payments, billers, history
    - Off-topic: weather, calendar, transfers, etc.
 
 2. **Tool Calling Sequence**:
+
    ```
    get_user → get_saved_biller_accounts → validate_biller_account → pay_bill
    ```
 
 3. **Human-in-the-Loop Rules**:
+
    - No matching biller → ask user
    - Multiple matches → present selection
    - Amount not specified → request amount
    - Payment confirmation → **ALWAYS** required
 
 4. **Response Guidelines**:
+
    - Australian English
    - Currency as `$X.XX AUD`
    - Last 4 digits only for accounts
@@ -227,7 +240,7 @@ All tools use the `tool` function from `@langchain/core/tools` with MCP-compatib
 
 ```typescript
 return {
-  content: [{ type: 'text', text: JSON.stringify(data) }],
+  content: [{ type: "text", text: JSON.stringify(data) }],
   isError: boolean,
 };
 ```
@@ -236,27 +249,28 @@ return {
 
 **File**: `src/tools/get-user.tool.ts`
 
-| Aspect | Value |
-|--------|-------|
-| **Name** | `get_user` |
-| **Purpose** | Retrieve user info from JWT token |
-| **Schema** | `{ jwtToken: string }` |
+| Aspect      | Value                                  |
+| ----------- | -------------------------------------- |
+| **Name**    | `get_user`                             |
+| **Purpose** | Retrieve user info from JWT token      |
+| **Schema**  | `{ jwtToken: string }`                 |
 | **Returns** | `{ success, userId, userName, email }` |
-| **Service** | `userService.getUserFromToken()` |
+| **Service** | `userService.getUserFromToken()`       |
 
 ### Tool: `get_saved_biller_accounts`
 
 **File**: `src/tools/get-saved-billers.tool.ts`
 
-| Aspect | Value |
-|--------|-------|
-| **Name** | `get_saved_biller_accounts` |
+| Aspect      | Value                                            |
+| ----------- | ------------------------------------------------ |
+| **Name**    | `get_saved_biller_accounts`                      |
 | **Purpose** | Query user's saved billers with optional filters |
-| **Schema** | `{ userId, nameFilter?, category? }` |
-| **Returns** | `{ success, count, billers[], message? }` |
-| **Service** | `billerService.getSavedBillers()` |
+| **Schema**  | `{ userId, nameFilter?, category? }`             |
+| **Returns** | `{ success, count, billers[], message? }`        |
+| **Service** | `billerService.getSavedBillers()`                |
 
 **Filtering**:
+
 - `nameFilter`: Case-insensitive partial match on name/nickname/category
 - `category`: Exact match on category enum
 
@@ -264,25 +278,25 @@ return {
 
 **File**: `src/tools/validate-biller.tool.ts`
 
-| Aspect | Value |
-|--------|-------|
-| **Name** | `validate_biller_account` |
-| **Purpose** | Validate biller details before payment |
-| **Schema** | `{ billerCode, accountNumber, accountRef }` |
+| Aspect      | Value                                                     |
+| ----------- | --------------------------------------------------------- |
+| **Name**    | `validate_biller_account`                                 |
+| **Purpose** | Validate biller details before payment                    |
+| **Schema**  | `{ billerCode, accountNumber, accountRef }`               |
 | **Returns** | `{ isValid, billerName?, accountStatus?, errorMessage? }` |
-| **Service** | `billerService.validateBiller()` |
+| **Service** | `billerService.validateBiller()`                          |
 
 ### Tool: `pay_bill`
 
 **File**: `src/tools/pay-bill.tool.ts`
 
-| Aspect | Value |
-|--------|-------|
-| **Name** | `pay_bill` |
-| **Purpose** | Execute BPAY payment |
-| **Schema** | `{ userId, billerCode, accountNumber, accountRef, amount }` |
-| **Returns** | `{ success, paymentId?, reference?, message, errorCode? }` |
-| **Service** | `paymentService.payBill()` |
+| Aspect      | Value                                                       |
+| ----------- | ----------------------------------------------------------- |
+| **Name**    | `pay_bill`                                                  |
+| **Purpose** | Execute BPAY payment                                        |
+| **Schema**  | `{ userId, billerCode, accountNumber, accountRef, amount }` |
+| **Returns** | `{ success, paymentId?, reference?, message, errorCode? }`  |
+| **Service** | `paymentService.payBill()`                                  |
 
 **Note**: Amount is in dollars (e.g., 150.50), stored internally in cents.
 
@@ -290,13 +304,13 @@ return {
 
 **File**: `src/tools/create-biller.tool.ts`
 
-| Aspect | Value |
-|--------|-------|
-| **Name** | `create_biller_account` |
-| **Purpose** | Add new biller to user's saved list |
-| **Schema** | `{ userId, billerCode, billerName, accountNumber, accountRef, nickname?, category }` |
-| **Returns** | `{ success, message, billerId, billerDetails }` |
-| **Service** | `billerService.createBiller()` |
+| Aspect      | Value                                                                                |
+| ----------- | ------------------------------------------------------------------------------------ |
+| **Name**    | `create_biller_account`                                                              |
+| **Purpose** | Add new biller to user's saved list                                                  |
+| **Schema**  | `{ userId, billerCode, billerName, accountNumber, accountRef, nickname?, category }` |
+| **Returns** | `{ success, message, billerId, billerDetails }`                                      |
+| **Service** | `billerService.createBiller()`                                                       |
 
 ---
 
@@ -308,17 +322,23 @@ All schemas in `src/tools/schemas/` use Zod with `.describe()` for LLM guidance.
 
 ```typescript
 // Required string with description
-z.string().describe('The BPAY biller code')
+z.string().describe("The BPAY biller code");
 
 // Optional nullable field
-z.string().nullable().optional().describe('Optional nickname')
+z.string().nullable().optional().describe("Optional nickname");
 
 // Enum with description
-z.enum(['utilities', 'telecom', 'insurance', 'council', 'government', 'other'])
-  .describe('The category of the biller')
+z.enum([
+  "utilities",
+  "telecom",
+  "insurance",
+  "council",
+  "government",
+  "other",
+]).describe("The category of the biller");
 
 // Positive number
-z.number().positive().describe('Payment amount in dollars')
+z.number().positive().describe("Payment amount in dollars");
 ```
 
 ---
@@ -331,14 +351,17 @@ z.number().positive().describe('Payment amount in dollars')
 
 ```typescript
 // Export mock implementations (swap for production)
-export { userService } from './mock/user.service.js';
-export { billerService } from './mock/biller.service.js';
-export { paymentService } from './mock/payment.service.js';
+export { userService } from "./mock/user.service.js";
+export { billerService } from "./mock/biller.service.js";
+export { paymentService } from "./mock/payment.service.js";
 
 // Re-export interfaces
-export type { IUserService } from './interfaces/user.interface.js';
-export type { IBillerService, GetBillersFilter } from './interfaces/biller.interface.js';
-export type { IPaymentService } from './interfaces/payment.interface.js';
+export type { IUserService } from "./interfaces/user.interface.js";
+export type {
+  IBillerService,
+  GetBillersFilter,
+} from "./interfaces/biller.interface.js";
+export type { IPaymentService } from "./interfaces/payment.interface.js";
 ```
 
 ### Interface: `IUserService`
@@ -358,9 +381,19 @@ interface IUserService {
 
 ```typescript
 interface IBillerService {
-  getSavedBillers(userId: string, filters?: GetBillersFilter): Promise<ToolResult<BillerAccount[]>>;
-  validateBiller(billerCode: string, accountNumber: string, accountRef: string): Promise<BillerValidationResult>;
-  createBiller(userId: string, input: CreateBillerAccountInput): Promise<ToolResult<BillerAccount>>;
+  getSavedBillers(
+    userId: string,
+    filters?: GetBillersFilter
+  ): Promise<ToolResult<BillerAccount[]>>;
+  validateBiller(
+    billerCode: string,
+    accountNumber: string,
+    accountRef: string
+  ): Promise<BillerValidationResult>;
+  createBiller(
+    userId: string,
+    input: CreateBillerAccountInput
+  ): Promise<ToolResult<BillerAccount>>;
 }
 
 interface GetBillersFilter {
@@ -376,7 +409,9 @@ interface GetBillersFilter {
 ```typescript
 interface IPaymentService {
   payBill(userId: string, input: PayBillInput): Promise<PaymentResult>;
-  getPaymentStatus(paymentId: string): Promise<ToolResult<{ status: string; message: string }>>;
+  getPaymentStatus(
+    paymentId: string
+  ): Promise<ToolResult<{ status: string; message: string }>>;
 }
 ```
 
@@ -388,10 +423,10 @@ interface IPaymentService {
 
 **File**: `src/services/mock/user.service.ts`
 
-| Method | Behavior |
-|--------|----------|
+| Method                  | Behavior                                           |
+| ----------------------- | -------------------------------------------------- |
 | `getUserFromToken(jwt)` | Looks up userId via `jwtUserMapping`, returns user |
-| `getUserById(id)` | Direct lookup in `mockData.users` |
+| `getUserById(id)`       | Direct lookup in `mockData.users`                  |
 
 **Latency**: 100ms for token lookup, 50ms for ID lookup.
 
@@ -399,15 +434,16 @@ interface IPaymentService {
 
 **File**: `src/services/mock/biller.service.ts`
 
-| Method | Behavior |
-|--------|----------|
-| `getSavedBillers(userId, filters)` | Filters by userId, nameFilter, category |
+| Method                               | Behavior                                 |
+| ------------------------------------ | ---------------------------------------- |
+| `getSavedBillers(userId, filters)`   | Filters by userId, nameFilter, category  |
 | `validateBiller(code, account, ref)` | Checks code validity, account/ref length |
-| `createBiller(userId, input)` | Adds to mockData.billerAccounts |
+| `createBiller(userId, input)`        | Adds to mockData.billerAccounts          |
 
 **Latency**: 150ms for query, 200ms for validation, 100ms for creation.
 
 **Validation Rules**:
+
 - Biller code must be in `validBillerCodes` set
 - Account number must be >= 6 digits
 - Reference number must be >= 4 digits
@@ -416,10 +452,10 @@ interface IPaymentService {
 
 **File**: `src/services/mock/payment.service.ts`
 
-| Method | Behavior |
-|--------|----------|
-| `payBill(userId, input)` | Creates payment record, 5% failure rate |
-| `getPaymentStatus(paymentId)` | Looks up payment by ID |
+| Method                        | Behavior                                |
+| ----------------------------- | --------------------------------------- |
+| `payBill(userId, input)`      | Creates payment record, 5% failure rate |
+| `getPaymentStatus(paymentId)` | Looks up payment by ID                  |
 
 **Latency**: 500ms for payment processing.
 
@@ -434,13 +470,13 @@ interface IPaymentService {
 
 ```typescript
 export const mockData = {
-  users: Map<string, User>,           // 2 test users
-  billerAccounts: Map<string, BillerAccount>,  // 4 billers for user_001
-  payments: Map<string, Payment>,     // Empty initially
-  validBillerCodes: Set<string>,      // 6 valid codes
+  users: Map<string, User>, // 2 test users
+  billerAccounts: Map<string, BillerAccount>, // 4 billers for user_001
+  payments: Map<string, Payment>, // Empty initially
+  validBillerCodes: Set<string>, // 6 valid codes
 };
 
-export const jwtUserMapping: Record<string, string>;  // JWT → userId
+export const jwtUserMapping: Record<string, string>; // JWT → userId
 export const billerCodeNames: Record<string, string>; // Code → Name
 ```
 
@@ -492,12 +528,12 @@ Displays welcome banner with commands and example queries.
 private handleCommand(input: string): boolean
 ```
 
-| Command | Action | Returns |
-|---------|--------|---------|
-| `exit`, `quit`, `q` | Display goodbye, signal exit | `true` |
-| `clear` | Reset threadId | `false` |
-| `help` | Display help | `false` |
-| (other) | No action | `false` |
+| Command             | Action                       | Returns |
+| ------------------- | ---------------------------- | ------- |
+| `exit`, `quit`, `q` | Display goodbye, signal exit | `true`  |
+| `clear`             | Reset threadId               | `false` |
+| `help`              | Display help                 | `false` |
+| (other)             | No action                    | `false` |
 
 #### Method: `run()`
 
@@ -506,6 +542,7 @@ async run(): Promise<void>
 ```
 
 Main REPL loop:
+
 1. Show welcome
 2. Prompt for input
 3. Handle commands or process with agent
@@ -520,12 +557,12 @@ Main REPL loop:
 
 #### Class: `ReadlineInterface`
 
-| Method | Purpose |
-|--------|---------|
-| `prompt(message)` | Get single line input |
+| Method                           | Purpose                |
+| -------------------------------- | ---------------------- |
+| `prompt(message)`                | Get single line input  |
 | `selectOption(options, message)` | Number-based selection |
-| `confirm(message)` | Yes/no confirmation |
-| `close()` | Cleanup |
+| `confirm(message)`               | Yes/no confirmation    |
+| `close()`                        | Cleanup                |
 
 ---
 
@@ -542,15 +579,16 @@ class StreamingOutput {
 }
 ```
 
-| Method | Purpose |
-|--------|---------|
-| `handleEvent(event)` | Route events to appropriate handler |
-| `ensureNewLine()` | Guarantee newline before next output |
-| `clearBuffer()` | Reset internal buffer |
-| `showLoading(message)` | Display loading indicator |
-| `clearLoading()` | Clear loading indicator |
+| Method                 | Purpose                              |
+| ---------------------- | ------------------------------------ |
+| `handleEvent(event)`   | Route events to appropriate handler  |
+| `ensureNewLine()`      | Guarantee newline before next output |
+| `clearBuffer()`        | Reset internal buffer                |
+| `showLoading(message)` | Display loading indicator            |
+| `clearLoading()`       | Clear loading indicator              |
 
 **Event Handling**:
+
 - `token`: Write to stdout (no newline)
 - `tool_start`: Display styled tool name
 - `tool_end`: Display completion
@@ -566,11 +604,24 @@ class StreamingOutput {
 ```typescript
 export const colors = {
   // Text styles
-  reset, bold, dim, italic,
+  reset,
+  bold,
+  dim,
+  italic,
   // Foreground colors
-  red, green, yellow, blue, magenta, cyan, white, gray,
+  red,
+  green,
+  yellow,
+  blue,
+  magenta,
+  cyan,
+  white,
+  gray,
   // Background colors
-  bgRed, bgGreen, bgYellow, bgBlue,
+  bgRed,
+  bgGreen,
+  bgYellow,
+  bgBlue,
 };
 
 export const styles = {
@@ -599,10 +650,10 @@ interface User {
 }
 
 interface JWTPayload {
-  sub: string;   // user_id
+  sub: string; // user_id
   email: string;
-  exp: number;   // Expiration timestamp
-  iat: number;   // Issued at timestamp
+  exp: number; // Expiration timestamp
+  iat: number; // Issued at timestamp
 }
 ```
 
@@ -624,13 +675,17 @@ interface BillerAccount {
 }
 
 type BillerCategory =
-  | 'utilities' | 'telecom' | 'insurance'
-  | 'council' | 'government' | 'other';
+  | "utilities"
+  | "telecom"
+  | "insurance"
+  | "council"
+  | "government"
+  | "other";
 
 interface BillerValidationResult {
   isValid: boolean;
   billerName?: string;
-  accountStatus?: 'active' | 'inactive' | 'unknown';
+  accountStatus?: "active" | "inactive" | "unknown";
   errorMessage?: string;
 }
 
@@ -651,8 +706,8 @@ interface Payment {
   id: string;
   userId: string;
   billerAccountId: string;
-  amount: number;          // In cents
-  currency: 'AUD';
+  amount: number; // In cents
+  currency: "AUD";
   status: PaymentStatus;
   reference: string;
   initiatedAt: Date;
@@ -661,7 +716,11 @@ interface Payment {
 }
 
 type PaymentStatus =
-  | 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled';
+  | "pending"
+  | "processing"
+  | "completed"
+  | "failed"
+  | "cancelled";
 
 interface PaymentResult {
   success: boolean;
@@ -675,7 +734,7 @@ interface PayBillInput {
   billerCode: string;
   accountNumber: string;
   accountRef: string;
-  amount: number;          // In dollars
+  amount: number; // In dollars
 }
 ```
 
@@ -708,18 +767,27 @@ interface ToolResult<T = unknown> {
 ```typescript
 enum ErrorCode {
   // Authentication
-  INVALID_JWT, EXPIRED_JWT, USER_NOT_FOUND,
+  INVALID_JWT,
+  EXPIRED_JWT,
+  USER_NOT_FOUND,
 
   // Biller
-  BILLER_NOT_FOUND, INVALID_BILLER_CODE,
-  INVALID_ACCOUNT_NUMBER, INVALID_CRN, BILLER_VALIDATION_FAILED,
+  BILLER_NOT_FOUND,
+  INVALID_BILLER_CODE,
+  INVALID_ACCOUNT_NUMBER,
+  INVALID_CRN,
+  BILLER_VALIDATION_FAILED,
 
   // Payment
-  INSUFFICIENT_FUNDS, PAYMENT_LIMIT_EXCEEDED,
-  PAYMENT_FAILED, DUPLICATE_PAYMENT,
+  INSUFFICIENT_FUNDS,
+  PAYMENT_LIMIT_EXCEEDED,
+  PAYMENT_FAILED,
+  DUPLICATE_PAYMENT,
 
   // System
-  SERVICE_UNAVAILABLE, TIMEOUT, UNKNOWN_ERROR,
+  SERVICE_UNAVAILABLE,
+  TIMEOUT,
+  UNKNOWN_ERROR,
 }
 ```
 
@@ -733,7 +801,7 @@ class BPAYError extends Error {
     public details?: Record<string, unknown>
   );
 
-  toUserMessage(): string;     // Returns user-friendly message
+  toUserMessage(): string; // Returns user-friendly message
   toToolResult(): { error: { code: string; message: string } };
 }
 ```
