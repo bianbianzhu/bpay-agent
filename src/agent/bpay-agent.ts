@@ -37,8 +37,8 @@ export class BPAYAgent {
       temperature: 0,
       streaming: true,
       configuration: {
-        baseURL: "http://localhost:1234/v1"
-      }
+        ...(config.OPENAI_BASE_URL && { baseURL: config.OPENAI_BASE_URL }),
+      },
     }).bindTools(bpayTools);
 
     this.checkpointer = new MemorySaver();
