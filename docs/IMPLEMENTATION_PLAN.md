@@ -27,7 +27,9 @@
 ## 1. Project Overview
 
 ### 1.1 Purpose
+
 Build a conversational AI agent that handles BPAY (Australian bill payment) operations. The agent should:
+
 - Process natural language requests for bill payments
 - Perform intent classification to handle only BPAY-related queries
 - Execute sequential tool calls for payment workflows
@@ -35,6 +37,7 @@ Build a conversational AI agent that handles BPAY (Australian bill payment) oper
 - Stream responses in real-time to a CLI interface
 
 ### 1.2 Example User Flow
+
 ```
 User: "I want to pay my water bill"
 
@@ -53,27 +56,27 @@ Agent Flow:
 
 ### 2.1 Functional Requirements
 
-| ID | Requirement | Priority |
-|----|-------------|----------|
-| FR1 | Intent classification for BPAY vs off-topic queries | High |
-| FR2 | Sequential tool calling for payment workflow | High |
-| FR3 | Human-in-the-loop for payment confirmation | High |
-| FR4 | Human-in-the-loop when no biller found | High |
-| FR5 | Real-time streaming output | High |
-| FR6 | Error handling with user-friendly messages | Medium |
-| FR7 | Conversation memory within session | Medium |
-| FR8 | Support for adding new billers | Medium |
+| ID  | Requirement                                         | Priority |
+| --- | --------------------------------------------------- | -------- |
+| FR1 | Intent classification for BPAY vs off-topic queries | High     |
+| FR2 | Sequential tool calling for payment workflow        | High     |
+| FR3 | Human-in-the-loop for payment confirmation          | High     |
+| FR4 | Human-in-the-loop when no biller found              | High     |
+| FR5 | Real-time streaming output                          | High     |
+| FR6 | Error handling with user-friendly messages          | Medium   |
+| FR7 | Conversation memory within session                  | Medium   |
+| FR8 | Support for adding new billers                      | Medium   |
 
 ### 2.2 Non-Functional Requirements
 
-| ID | Requirement | Decision |
-|----|-------------|----------|
-| NFR1 | Language | TypeScript |
-| NFR2 | Frontend | CLI (demo purposes) |
-| NFR3 | LLM Provider | OpenAI GPT |
-| NFR4 | Agent Framework | LangChain.js / LangGraph |
-| NFR5 | API Strategy | Mock + Interface (swappable) |
-| NFR6 | State Persistence | In-memory only |
+| ID   | Requirement          | Decision                      |
+| ---- | -------------------- | ----------------------------- |
+| NFR1 | Language             | TypeScript                    |
+| NFR2 | Frontend             | CLI (demo purposes)           |
+| NFR3 | LLM Provider         | OpenAI GPT                    |
+| NFR4 | Agent Framework      | LangChain.js / LangGraph      |
+| NFR5 | API Strategy         | Mock + Interface (swappable)  |
+| NFR6 | State Persistence    | In-memory only                |
 | NFR7 | Payment Confirmation | Always required (user choice) |
 
 ### 2.3 User's Decision Points
@@ -92,33 +95,33 @@ During planning, the following decisions were made by the user:
 
 ### 3.1 Core Technologies
 
-| Component | Technology | Version | Justification |
-|-----------|------------|---------|---------------|
-| Runtime | Node.js | 18+ | Modern ES modules support |
-| Language | TypeScript | ^5.5.0 | Type safety, better DX |
-| LLM | OpenAI GPT | gpt-4-turbo-preview | User preference, tool calling |
-| Agent Framework | LangChain.js | ^0.3.0 | Tool calling, streaming |
-| Agent Orchestration | LangGraph | ^0.2.0 | State management, graph flows |
-| Schema Validation | Zod | ^3.23.0 | Runtime validation + JSON schema |
-| Environment | dotenv | ^16.4.0 | Environment variable management |
+| Component           | Technology   | Version             | Justification                    |
+| ------------------- | ------------ | ------------------- | -------------------------------- |
+| Runtime             | Node.js      | 18+                 | Modern ES modules support        |
+| Language            | TypeScript   | ^5.5.0              | Type safety, better DX           |
+| LLM                 | OpenAI GPT   | gpt-4-turbo-preview | User preference, tool calling    |
+| Agent Framework     | LangChain.js | ^0.3.0              | Tool calling, streaming          |
+| Agent Orchestration | LangGraph    | ^0.2.0              | State management, graph flows    |
+| Schema Validation   | Zod          | ^3.23.0             | Runtime validation + JSON schema |
+| Environment         | dotenv       | ^16.4.0             | Environment variable management  |
 
 ### 3.2 Development Dependencies
 
-| Package | Version | Purpose |
-|---------|---------|---------|
-| typescript | ^5.5.0 | TypeScript compiler |
-| tsx | ^4.0.0 | TypeScript execution without compilation |
-| @types/node | ^22.0.0 | Node.js type definitions |
+| Package     | Version | Purpose                                  |
+| ----------- | ------- | ---------------------------------------- |
+| typescript  | ^5.5.0  | TypeScript compiler                      |
+| tsx         | ^4.0.0  | TypeScript execution without compilation |
+| @types/node | ^22.0.0 | Node.js type definitions                 |
 
 ### 3.3 Why LangGraph over AgentExecutor
 
-| Feature | AgentExecutor | LangGraph |
-|---------|---------------|-----------|
-| State management | Basic | Full state graph |
-| Human-in-the-loop | Limited | `interrupt` pattern |
-| Flow control | Sequential | Conditional edges |
-| Streaming | Basic | `streamEvents` API |
-| Debugging | Limited | Visual graph representation |
+| Feature           | AgentExecutor | LangGraph                   |
+| ----------------- | ------------- | --------------------------- |
+| State management  | Basic         | Full state graph            |
+| Human-in-the-loop | Limited       | `interrupt` pattern         |
+| Flow control      | Sequential    | Conditional edges           |
+| Streaming         | Basic         | `streamEvents` API          |
+| Debugging         | Limited       | Visual graph representation |
 
 **Decision**: LangGraph chosen for better human-in-the-loop support via `interrupt` pattern.
 
@@ -269,15 +272,15 @@ bpay-agent/
 
 ### 5.2 File Responsibilities
 
-| File | Responsibility | Key Exports |
-|------|----------------|-------------|
-| `src/index.ts` | Entry point, config validation | `main()` |
-| `src/config/index.ts` | Environment config | `config` object |
-| `src/agent/bpay-agent.ts` | LangGraph agent | `BPAYAgent` class |
-| `src/agent/prompts/system.prompt.ts` | Intent classification rules | `BPAY_SYSTEM_PROMPT` |
-| `src/tools/index.ts` | Tool registry | `bpayTools` array |
-| `src/services/index.ts` | Service exports | `userService`, `billerService`, `paymentService` |
-| `src/cli/index.ts` | CLI orchestration | `CLI` class |
+| File                                 | Responsibility                 | Key Exports                                      |
+| ------------------------------------ | ------------------------------ | ------------------------------------------------ |
+| `src/index.ts`                       | Entry point, config validation | `main()`                                         |
+| `src/config/index.ts`                | Environment config             | `config` object                                  |
+| `src/agent/bpay-agent.ts`            | LangGraph agent                | `BPAYAgent` class                                |
+| `src/agent/prompts/system.prompt.ts` | Intent classification rules    | `BPAY_SYSTEM_PROMPT`                             |
+| `src/tools/index.ts`                 | Tool registry                  | `bpayTools` array                                |
+| `src/services/index.ts`              | Service exports                | `userService`, `billerService`, `paymentService` |
+| `src/cli/index.ts`                   | CLI orchestration              | `CLI` class                                      |
 
 ---
 
@@ -294,7 +297,7 @@ interface User {
 }
 
 interface JWTPayload {
-  sub: string;      // user_id
+  sub: string; // user_id
   email: string;
   exp: number;
   iat: number;
@@ -307,11 +310,11 @@ interface JWTPayload {
 interface BillerAccount {
   id: string;
   userId: string;
-  billerCode: string;        // BPAY biller code (e.g., "23796")
-  billerName: string;        // e.g., "Sydney Water"
-  accountNumber: string;     // Customer's account number
-  accountRef: string;        // Customer reference number (CRN)
-  nickname?: string;         // User-defined nickname
+  billerCode: string; // BPAY biller code (e.g., "23796")
+  billerName: string; // e.g., "Sydney Water"
+  accountNumber: string; // Customer's account number
+  accountRef: string; // Customer reference number (CRN)
+  nickname?: string; // User-defined nickname
   category: BillerCategory;
   isActive: boolean;
   createdAt: Date;
@@ -319,17 +322,17 @@ interface BillerAccount {
 }
 
 type BillerCategory =
-  | 'utilities'      // water, electricity, gas
-  | 'telecom'        // phone, internet
-  | 'insurance'
-  | 'council'        // council rates
-  | 'government'
-  | 'other';
+  | "utilities" // water, electricity, gas
+  | "telecom" // phone, internet
+  | "insurance"
+  | "council" // council rates
+  | "government"
+  | "other";
 
 interface BillerValidationResult {
   isValid: boolean;
   billerName?: string;
-  accountStatus?: 'active' | 'inactive' | 'unknown';
+  accountStatus?: "active" | "inactive" | "unknown";
   errorMessage?: string;
 }
 
@@ -350,21 +353,21 @@ interface Payment {
   id: string;
   userId: string;
   billerAccountId: string;
-  amount: number;            // in cents
-  currency: 'AUD';
+  amount: number; // in cents
+  currency: "AUD";
   status: PaymentStatus;
-  reference: string;         // Transaction reference
+  reference: string; // Transaction reference
   initiatedAt: Date;
   completedAt?: Date;
   failureReason?: string;
 }
 
 type PaymentStatus =
-  | 'pending'
-  | 'processing'
-  | 'completed'
-  | 'failed'
-  | 'cancelled';
+  | "pending"
+  | "processing"
+  | "completed"
+  | "failed"
+  | "cancelled";
 
 interface PaymentResult {
   success: boolean;
@@ -378,7 +381,7 @@ interface PayBillInput {
   billerCode: string;
   accountNumber: string;
   accountRef: string;
-  amount: number;            // in dollars
+  amount: number; // in dollars
 }
 ```
 
@@ -404,24 +407,26 @@ interface ToolResult<T = unknown> {
 
 ### 7.1 Tool Overview
 
-| # | Tool Name | Purpose | Required Before |
-|---|-----------|---------|-----------------|
-| 1 | `get_user` | Get user from JWT | - |
-| 2 | `get_saved_biller_accounts` | List saved billers | `get_user` |
-| 3 | `validate_biller_account` | Validate biller details | `get_saved_biller_accounts` |
-| 4 | `pay_bill` | Process payment | `validate_biller_account` + user confirmation |
-| 5 | `create_biller_account` | Add new biller | `get_user` |
+| #   | Tool Name                   | Purpose                 | Required Before                               |
+| --- | --------------------------- | ----------------------- | --------------------------------------------- |
+| 1   | `get_user`                  | Get user from JWT       | -                                             |
+| 2   | `get_saved_biller_accounts` | List saved billers      | `get_user`                                    |
+| 3   | `validate_biller_account`   | Validate biller details | `get_saved_biller_accounts`                   |
+| 4   | `pay_bill`                  | Process payment         | `validate_biller_account` + user confirmation |
+| 5   | `create_biller_account`     | Add new biller          | `get_user`                                    |
 
 ### 7.2 Tool Schemas (Zod)
 
 #### get_user
+
 ```typescript
 const getUserSchema = z.object({
-  jwtToken: z.string().describe('The JWT token from the user session'),
+  jwtToken: z.string().describe("The JWT token from the user session"),
 });
 ```
 
 #### get_saved_biller_accounts
+
 ```typescript
 const getSavedBillersSchema = z.object({
   userId: z.string().describe('The user ID obtained from get_user'),
@@ -431,26 +436,29 @@ const getSavedBillersSchema = z.object({
 ```
 
 #### validate_biller_account
+
 ```typescript
 const validateBillerSchema = z.object({
-  billerCode: z.string().describe('The BPAY biller code'),
-  accountNumber: z.string().describe('The customer account number'),
-  accountRef: z.string().describe('The customer reference number (CRN)'),
+  billerCode: z.string().describe("The BPAY biller code"),
+  accountNumber: z.string().describe("The customer account number"),
+  accountRef: z.string().describe("The customer reference number (CRN)"),
 });
 ```
 
 #### pay_bill
+
 ```typescript
 const payBillSchema = z.object({
-  userId: z.string().describe('The user ID'),
-  billerCode: z.string().describe('The BPAY biller code'),
-  accountNumber: z.string().describe('The customer account number'),
-  accountRef: z.string().describe('The CRN'),
-  amount: z.number().positive().describe('Amount in dollars'),
+  userId: z.string().describe("The user ID"),
+  billerCode: z.string().describe("The BPAY biller code"),
+  accountNumber: z.string().describe("The customer account number"),
+  accountRef: z.string().describe("The CRN"),
+  amount: z.number().positive().describe("Amount in dollars"),
 });
 ```
 
 #### create_biller_account
+
 ```typescript
 const createBillerSchema = z.object({
   userId: z.string().describe('The user ID'),
@@ -465,18 +473,31 @@ const createBillerSchema = z.object({
 
 ### 7.3 Tool Implementation Pattern
 
-Each tool follows this pattern:
+Each tool follows this pattern using the `tool` function with MCP-compatible return format:
 
 ```typescript
-export const toolName = new DynamicStructuredTool({
-  name: 'tool_name',
-  description: 'Clear description for the LLM',
-  schema: zodSchema,
-  func: async (params) => {
+import { tool } from "@langchain/core/tools";
+import { z } from "zod";
+
+export const toolName = tool(
+  async (params) => {
     const result = await service.method(params);
-    return JSON.stringify(result);  // Always return JSON string
+    return {
+      content: [
+        {
+          type: "text",
+          text: JSON.stringify(result),
+        },
+      ],
+      isError: false,
+    };
   },
-});
+  {
+    name: "tool_name",
+    description: "Clear description for the LLM",
+    schema: zodSchema,
+  }
+);
 ```
 
 ---
@@ -507,22 +528,22 @@ const AgentState = Annotation.Root({
 });
 
 const workflow = new StateGraph(AgentState)
-  .addNode('agent', agentNode)
-  .addNode('tools', toolNode)
-  .addEdge(START, 'agent')
-  .addConditionalEdges('agent', shouldContinue)
-  .addEdge('tools', 'agent');
+  .addNode("agent", agentNode)
+  .addNode("tools", toolNode)
+  .addEdge(START, "agent")
+  .addConditionalEdges("agent", shouldContinue)
+  .addEdge("tools", "agent");
 ```
 
 ### 8.3 Routing Logic
 
 ```typescript
-const shouldContinue = (state): 'tools' | '__end__' => {
+const shouldContinue = (state): "tools" | "__end__" => {
   const lastMessage = state.messages[state.messages.length - 1];
   if (lastMessage instanceof AIMessage && lastMessage.tool_calls?.length) {
-    return 'tools';
+    return "tools";
   }
-  return '__end__';
+  return "__end__";
 };
 ```
 
@@ -532,12 +553,12 @@ const shouldContinue = (state): 'tools' | '__end__' => {
 
 ### 9.1 Trigger Points
 
-| Trigger | Condition | Agent Action |
-|---------|-----------|--------------|
-| No biller found | `get_saved_biller_accounts` returns 0 | Ask: search again, add manually, or cancel |
-| Multiple billers | More than 1 match | Show numbered list, ask to select |
-| Amount missing | User didn't specify | Ask: "How much to pay?" |
-| Payment confirmation | Before `pay_bill` | Confirm: "Pay $X to Y? (yes/no)" |
+| Trigger              | Condition                             | Agent Action                               |
+| -------------------- | ------------------------------------- | ------------------------------------------ |
+| No biller found      | `get_saved_biller_accounts` returns 0 | Ask: search again, add manually, or cancel |
+| Multiple billers     | More than 1 match                     | Show numbered list, ask to select          |
+| Amount missing       | User didn't specify                   | Ask: "How much to pay?"                    |
+| Payment confirmation | Before `pay_bill`                     | Confirm: "Pay $X to Y? (yes/no)"           |
 
 ### 9.2 Implementation Approach
 
@@ -574,7 +595,7 @@ for await (const event of graph.streamEvents(input, { version: 'v2' })) {
 
 ```typescript
 interface StreamEvent {
-  type: 'token' | 'tool_start' | 'tool_end' | 'final' | 'error';
+  type: "token" | "tool_start" | "tool_end" | "final" | "error";
   content: string;
   toolName?: string;
 }
@@ -582,13 +603,13 @@ interface StreamEvent {
 
 ### 10.3 CLI Output Handling
 
-| Event Type | CLI Behavior |
-|------------|--------------|
-| `token` | `process.stdout.write()` - no newline |
-| `tool_start` | Print styled tool indicator |
-| `tool_end` | Print completion message |
-| `final` | Ensure newline |
-| `error` | Print error in red |
+| Event Type   | CLI Behavior                          |
+| ------------ | ------------------------------------- |
+| `token`      | `process.stdout.write()` - no newline |
+| `tool_start` | Print styled tool indicator           |
+| `tool_end`   | Print completion message              |
+| `final`      | Ensure newline                        |
+| `error`      | Print error in red                    |
 
 ---
 
@@ -599,23 +620,23 @@ interface StreamEvent {
 ```typescript
 enum ErrorCode {
   // Authentication
-  INVALID_JWT = 'INVALID_JWT',
-  EXPIRED_JWT = 'EXPIRED_JWT',
-  USER_NOT_FOUND = 'USER_NOT_FOUND',
+  INVALID_JWT = "INVALID_JWT",
+  EXPIRED_JWT = "EXPIRED_JWT",
+  USER_NOT_FOUND = "USER_NOT_FOUND",
 
   // Biller
-  BILLER_NOT_FOUND = 'BILLER_NOT_FOUND',
-  INVALID_BILLER_CODE = 'INVALID_BILLER_CODE',
-  INVALID_ACCOUNT_NUMBER = 'INVALID_ACCOUNT_NUMBER',
-  INVALID_CRN = 'INVALID_CRN',
+  BILLER_NOT_FOUND = "BILLER_NOT_FOUND",
+  INVALID_BILLER_CODE = "INVALID_BILLER_CODE",
+  INVALID_ACCOUNT_NUMBER = "INVALID_ACCOUNT_NUMBER",
+  INVALID_CRN = "INVALID_CRN",
 
   // Payment
-  INSUFFICIENT_FUNDS = 'INSUFFICIENT_FUNDS',
-  PAYMENT_FAILED = 'PAYMENT_FAILED',
+  INSUFFICIENT_FUNDS = "INSUFFICIENT_FUNDS",
+  PAYMENT_FAILED = "PAYMENT_FAILED",
 
   // System
-  SERVICE_UNAVAILABLE = 'SERVICE_UNAVAILABLE',
-  UNKNOWN_ERROR = 'UNKNOWN_ERROR',
+  SERVICE_UNAVAILABLE = "SERVICE_UNAVAILABLE",
+  UNKNOWN_ERROR = "UNKNOWN_ERROR",
 }
 ```
 
@@ -623,17 +644,21 @@ enum ErrorCode {
 
 Each error code maps to a user-friendly message:
 
-| Code | User Message |
-|------|-------------|
-| `INVALID_JWT` | "Your session has expired. Please log in again." |
-| `BILLER_NOT_FOUND` | "The requested biller could not be found." |
-| `PAYMENT_FAILED` | "The payment could not be processed. Please try again." |
+| Code               | User Message                                            |
+| ------------------ | ------------------------------------------------------- |
+| `INVALID_JWT`      | "Your session has expired. Please log in again."        |
+| `BILLER_NOT_FOUND` | "The requested biller could not be found."              |
+| `PAYMENT_FAILED`   | "The payment could not be processed. Please try again." |
 
 ### 11.3 BPAYError Class
 
 ```typescript
 class BPAYError extends Error {
-  constructor(code: ErrorCode, message?: string, details?: Record<string, unknown>);
+  constructor(
+    code: ErrorCode,
+    message?: string,
+    details?: Record<string, unknown>
+  );
   toUserMessage(): string;
   toToolResult(): { error: { code: string; message: string } };
 }
@@ -662,10 +687,12 @@ class BPAYError extends Error {
 ### 12.2 Mock Data
 
 **Users** (2):
+
 - user_001: John Smith
 - user_002: Jane Doe
 
 **Biller Accounts** (4 for user_001):
+
 - Sydney Water (utilities)
 - AGL Energy (utilities)
 - Telstra (telecom)
@@ -674,20 +701,21 @@ class BPAYError extends Error {
 **Valid Biller Codes**: 23796, 12345, 54321, 67890, 11111, 99999
 
 **JWT Mapping**:
+
 - `mock_jwt_token_001` → `user_001`
 - `mock_jwt_token_002` → `user_002`
 
 ### 12.3 Service Methods
 
-| Service | Method | Parameters | Returns |
-|---------|--------|------------|---------|
-| UserService | `getUserFromToken` | jwtToken | `ToolResult<User>` |
-| UserService | `getUserById` | userId | `ToolResult<User>` |
-| BillerService | `getSavedBillers` | userId, filters | `ToolResult<BillerAccount[]>` |
-| BillerService | `validateBiller` | code, number, ref | `BillerValidationResult` |
-| BillerService | `createBiller` | userId, input | `ToolResult<BillerAccount>` |
-| PaymentService | `payBill` | userId, input | `PaymentResult` |
-| PaymentService | `getPaymentStatus` | paymentId | `ToolResult<{status, message}>` |
+| Service        | Method             | Parameters        | Returns                         |
+| -------------- | ------------------ | ----------------- | ------------------------------- |
+| UserService    | `getUserFromToken` | jwtToken          | `ToolResult<User>`              |
+| UserService    | `getUserById`      | userId            | `ToolResult<User>`              |
+| BillerService  | `getSavedBillers`  | userId, filters   | `ToolResult<BillerAccount[]>`   |
+| BillerService  | `validateBiller`   | code, number, ref | `BillerValidationResult`        |
+| BillerService  | `createBiller`     | userId, input     | `ToolResult<BillerAccount>`     |
+| PaymentService | `payBill`          | userId, input     | `PaymentResult`                 |
+| PaymentService | `getPaymentStatus` | paymentId         | `ToolResult<{status, message}>` |
 
 ---
 
@@ -695,20 +723,20 @@ class BPAYError extends Error {
 
 ### 13.1 Components
 
-| Component | File | Purpose |
-|-----------|------|---------|
-| CLI | `cli/index.ts` | Main orchestrator |
-| ReadlineInterface | `cli/readline.ts` | User input handling |
-| StreamingOutput | `cli/streaming.ts` | Real-time output |
-| colors | `cli/colors.ts` | ANSI color utilities |
+| Component         | File               | Purpose              |
+| ----------------- | ------------------ | -------------------- |
+| CLI               | `cli/index.ts`     | Main orchestrator    |
+| ReadlineInterface | `cli/readline.ts`  | User input handling  |
+| StreamingOutput   | `cli/streaming.ts` | Real-time output     |
+| colors            | `cli/colors.ts`    | ANSI color utilities |
 
 ### 13.2 Commands
 
-| Command | Action |
-|---------|--------|
-| `exit`, `quit`, `q` | Exit application |
-| `clear` | Clear conversation, new thread |
-| `help` | Show help message |
+| Command             | Action                         |
+| ------------------- | ------------------------------ |
+| `exit`, `quit`, `q` | Exit application               |
+| `clear`             | Clear conversation, new thread |
+| `help`              | Show help message              |
 
 ### 13.3 Visual Design
 
@@ -735,40 +763,47 @@ You: I want to pay my water bill
 ## 14. Implementation Phases
 
 ### Phase 1: Project Setup
+
 - Initialize npm project with `package.json`
 - Configure TypeScript with `tsconfig.json`
 - Create `.env.example` and `.gitignore`
 - Set up directory structure
 
 ### Phase 2: Types & Interfaces
+
 - Create type definitions in `src/types/`
 - Create service interfaces in `src/services/interfaces/`
 - Create error utilities in `src/utils/errors.ts`
 
 ### Phase 3: Mock Services
+
 - Create mock data store with sample users and billers
 - Implement `MockUserService`
 - Implement `MockBillerService`
 - Implement `MockPaymentService`
 
 ### Phase 4: Tool Definitions
+
 - Create Zod schemas for each tool
-- Implement 5 tools using `DynamicStructuredTool`
+- Implement 5 tools using `tool` function with MCP-compatible return format
 - Create tool registry in `src/tools/index.ts`
 
 ### Phase 5: Agent Core
+
 - Write system prompt with intent classification
 - Create `BPAYAgent` class with LangGraph
 - Configure `MemorySaver` for conversation persistence
 - Implement streaming with `streamEvents`
 
 ### Phase 6: CLI
+
 - Implement terminal colors utility
 - Create readline interface wrapper
 - Build streaming output handler
 - Create main CLI loop with command handling
 
 ### Phase 7: Testing & Polish
+
 - Install dependencies and verify compilation
 - Manual end-to-end testing
 - Error handling refinement
@@ -824,9 +859,9 @@ You: I want to pay my water bill
 
 ## Document Information
 
-| Field | Value |
-|-------|-------|
-| Created | 2024-11-26 |
-| Version | 1.0 |
-| Status | Complete |
-| Author | Claude (AI Assistant) |
+| Field   | Value                 |
+| ------- | --------------------- |
+| Created | 2025-11-26            |
+| Version | 1.0                   |
+| Status  | Complete              |
+| Author  | Claude (AI Assistant) |

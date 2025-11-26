@@ -223,13 +223,18 @@ export const BPAY_SYSTEM_PROMPT: string
 
 **Exports**: `bpayTools` array containing all five tools.
 
+All tools use the `tool` function from `@langchain/core/tools` with MCP-compatible return format:
+
+```typescript
+return {
+  content: [{ type: 'text', text: JSON.stringify(data) }],
+  isError: boolean,
+};
+```
+
 ### Tool: `get_user`
 
 **File**: `src/tools/get-user.tool.ts`
-
-```typescript
-export const getUserTool: DynamicStructuredTool
-```
 
 | Aspect | Value |
 |--------|-------|
@@ -242,10 +247,6 @@ export const getUserTool: DynamicStructuredTool
 ### Tool: `get_saved_biller_accounts`
 
 **File**: `src/tools/get-saved-billers.tool.ts`
-
-```typescript
-export const getSavedBillersTool: DynamicStructuredTool
-```
 
 | Aspect | Value |
 |--------|-------|
@@ -263,10 +264,6 @@ export const getSavedBillersTool: DynamicStructuredTool
 
 **File**: `src/tools/validate-biller.tool.ts`
 
-```typescript
-export const validateBillerTool: DynamicStructuredTool
-```
-
 | Aspect | Value |
 |--------|-------|
 | **Name** | `validate_biller_account` |
@@ -278,10 +275,6 @@ export const validateBillerTool: DynamicStructuredTool
 ### Tool: `pay_bill`
 
 **File**: `src/tools/pay-bill.tool.ts`
-
-```typescript
-export const payBillTool: DynamicStructuredTool
-```
 
 | Aspect | Value |
 |--------|-------|
@@ -296,10 +289,6 @@ export const payBillTool: DynamicStructuredTool
 ### Tool: `create_biller_account`
 
 **File**: `src/tools/create-biller.tool.ts`
-
-```typescript
-export const createBillerTool: DynamicStructuredTool
-```
 
 | Aspect | Value |
 |--------|-------|
