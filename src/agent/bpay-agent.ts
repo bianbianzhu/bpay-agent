@@ -1,6 +1,6 @@
 import { ChatOpenAI } from '@langchain/openai';
 import { HumanMessage, AIMessage, SystemMessage, type BaseMessage } from 'langchain';
-import { StateGraph, START, MemorySaver, Annotation } from '@langchain/langgraph';
+import { StateGraph, START, MemorySaver, Annotation, messagesStateReducer } from '@langchain/langgraph';
 import { ToolNode } from '@langchain/langgraph/prebuilt';
 import { bpayTools } from '../tools/index.js';
 import { BPAY_SYSTEM_PROMPT } from './prompts/system.prompt.js';
@@ -9,7 +9,7 @@ import { config } from '../config/index.js';
 // Define the state using Annotation
 const AgentState = Annotation.Root({
   messages: Annotation<BaseMessage[]>({
-    reducer: (prev, next) => [...prev, ...next],
+    reducer: messagesStateReducer,
     default: () => [],
   }),
 });
