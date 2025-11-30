@@ -1,4 +1,4 @@
-import type { User, BillerAccount, Payment, Contact } from '../../types/index.js';
+import type { User, BillerAccount, Payment, Contact, Account } from '../../types/index.js';
 
 // In-memory mock data store
 export const mockData = {
@@ -112,6 +112,23 @@ export const mockData = {
             },
           },
         ],
+      },
+    ]],
+  ]),
+
+  accounts: new Map<string, Account[]>([
+    ['user_001', [
+      {
+        id: 'acc1',
+        name: 'Daily Expense Account',
+        type: 'ZLR_DEBIT',
+        balance: 500,
+      },
+      {
+        id: 'acc2',
+        name: 'Savings Account',
+        type: 'SAVINGS',
+        balance: 15000,
       },
     ]],
   ]),
