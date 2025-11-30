@@ -105,13 +105,19 @@ export class BPAYAgent {
   }
 
   /**
-   * Build context messages from pre-fetched data (pure JSON format)
+   * Build context messages from pre-fetched data with LLM-readable prefixes
    */
   private buildContextMessages(): HumanMessage[] {
     const messages: HumanMessage[] = [];
-    if (this.userContext) messages.push(new HumanMessage(this.userContext));
-    if (this.accountsContext) messages.push(new HumanMessage(this.accountsContext));
-    if (this.contactsContext) messages.push(new HumanMessage(this.contactsContext));
+    if (this.userContext) {
+      messages.push(new HumanMessage(`[Current User]\n${this.userContext}`));
+    }
+    if (this.accountsContext) {
+      messages.push(new HumanMessage(`[User's Bank Accounts]\n${this.accountsContext}`));
+    }
+    if (this.contactsContext) {
+      messages.push(new HumanMessage(`[User's Contacts]\n${this.contactsContext}`));
+    }
     return messages;
   }
 
