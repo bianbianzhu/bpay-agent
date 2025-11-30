@@ -5,6 +5,7 @@ import { ToolNode } from '@langchain/langgraph/prebuilt';
 import { bpayTools } from '../tools/index.js';
 import { BPAY_SYSTEM_PROMPT } from './prompts/system.prompt.js';
 import { config } from '../config/index.js';
+import { userService, accountService, contactService } from '../services/index.js';
 
 // Define the state using Annotation
 const AgentState = Annotation.Root({
@@ -24,6 +25,9 @@ export class BPAYAgent {
   private model;
   private graph;
   private checkpointer: MemorySaver;
+  private userContext: string | null = null;
+  private accountsContext: string | null = null;
+  private contactsContext: string | null = null;
 
   constructor(apiKey?: string) {
     const openAIApiKey = apiKey || config.OPENAI_API_KEY;
@@ -80,20 +84,49 @@ export class BPAYAgent {
   }
 
   /**
+   * Initialize context by fetching user, accounts, and contacts data
+   * Call this once at session start
+   */
+  async initializeContext(jwtToken: string): Promise<void> {
+    const userResult = await userService.getUserFromToken(jwtToken);
+    if (userResult.success && userResult.data) {
+      this.userContext = JSON.stringify(userResult.data);
+
+      const accountsResult = await accountService.getDebitCardAccountsV2(userResult.data.id);
+      if (accountsResult.success) {
+        this.accountsContext = JSON.stringify(accountsResult.data);
+      }
+
+      const contactsResult = await contactService.getContacts(userResult.data.id);
+      if (contactsResult.success) {
+        this.contactsContext = JSON.stringify(contactsResult.data);
+      }
+    }
+  }
+
+  /**
+   * Build context messages from pre-fetched data (pure JSON format)
+   */
+  private buildContextMessages(): HumanMessage[] {
+    const messages: HumanMessage[] = [];
+    if (this.userContext) messages.push(new HumanMessage(this.userContext));
+    if (this.accountsContext) messages.push(new HumanMessage(this.accountsContext));
+    if (this.contactsContext) messages.push(new HumanMessage(this.contactsContext));
+    return messages;
+  }
+
+  /**
    * Process a user message with streaming support
    */
   async *processMessage(
     userMessage: string,
-    threadId: string,
-    jwtToken: string
+    threadId: string
   ): AsyncGenerator<StreamEvent> {
     const configurable = { configurable: { thread_id: threadId } };
 
-    // Include JWT token in message context
-    const messageWithContext = `[JWT: ${jwtToken}]\n\n${userMessage}`;
-
+    // Build input with pre-fetched context messages followed by user message
     const input = {
-      messages: [new HumanMessage(messageWithContext)],
+      messages: [...this.buildContextMessages(), new HumanMessage(userMessage)],
     };
 
     try {
@@ -137,15 +170,13 @@ export class BPAYAgent {
    */
   async processMessageSync(
     userMessage: string,
-    threadId: string,
-    jwtToken: string
+    threadId: string
   ): Promise<string> {
     const configurable = { configurable: { thread_id: threadId } };
 
-    const messageWithContext = `[JWT: ${jwtToken}]\n\n${userMessage}`;
-
+    // Build input with pre-fetched context messages followed by user message
     const result = await this.graph.invoke(
-      { messages: [new HumanMessage(messageWithContext)] },
+      { messages: [...this.buildContextMessages(), new HumanMessage(userMessage)] },
       configurable
     );
 

@@ -83,6 +83,9 @@ export class CLI {
   async run(): Promise<void> {
     this.showWelcome();
 
+    // Initialize context at session start (fetch user, accounts, contacts)
+    await this.agent.initializeContext(this.jwtToken);
+
     while (true) {
       const userInput = await this.rl.prompt('\nYou: ');
 
@@ -107,8 +110,7 @@ export class CLI {
       try {
         for await (const event of this.agent.processMessage(
           userInput,
-          this.threadId,
-          this.jwtToken
+          this.threadId
         )) {
           this.streaming.handleEvent(event);
         }
