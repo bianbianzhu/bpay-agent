@@ -9,7 +9,7 @@ import {
 } from '../tools/index.js';
 
 const transferTools = [transferInternalTool, transferExternalTool, transferBpayTool];
-import { BPAY_SYSTEM_PROMPT } from './prompts/system.prompt.js';
+import { TRANSFER_SYSTEM_PROMPT } from './prompts/system.prompt.js';
 import { config } from '../config/index.js';
 import { userService, accountService, contactService } from '../services/index.js';
 
@@ -27,7 +27,7 @@ export interface StreamEvent {
   toolName?: string;
 }
 
-export class BPAYAgent {
+export class TransferAgent {
   private model;
   private graph;
   private checkpointer: MemorySaver;
@@ -62,7 +62,7 @@ export class BPAYAgent {
     // Agent node - calls the LLM
     const agentNode = async (state: typeof AgentState.State) => {
       const response = await model.invoke([
-        new SystemMessage(BPAY_SYSTEM_PROMPT),
+        new SystemMessage(TRANSFER_SYSTEM_PROMPT),
         ...state.messages,
       ]);
       return { messages: [response] };

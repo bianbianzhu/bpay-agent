@@ -41,14 +41,14 @@ const USER_MESSAGES: Record<ErrorCode, string> = {
   [ErrorCode.UNKNOWN_ERROR]: 'An unexpected error occurred. Please try again.',
 };
 
-export class BPAYError extends Error {
+export class TransferError extends Error {
   constructor(
     public code: ErrorCode,
     message?: string,
     public details?: Record<string, unknown>
   ) {
     super(message || USER_MESSAGES[code]);
-    this.name = 'BPAYError';
+    this.name = 'TransferError';
   }
 
   toUserMessage(): string {

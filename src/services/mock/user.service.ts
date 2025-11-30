@@ -1,7 +1,7 @@
 import type { IUserService } from '../interfaces/user.interface.js';
 import type { User, ToolResult } from '../../types/index.js';
 import { mockData, jwtUserMapping } from './data.js';
-import { BPAYError, ErrorCode } from '../../utils/errors.js';
+import { TransferError, ErrorCode } from '../../utils/errors.js';
 
 const delay = (ms: number): Promise<void> =>
   new Promise(resolve => setTimeout(resolve, ms));
@@ -12,7 +12,7 @@ class MockUserService implements IUserService {
 
     const userId = jwtUserMapping[jwtToken];
     if (!userId) {
-      const error = new BPAYError(ErrorCode.INVALID_JWT);
+      const error = new TransferError(ErrorCode.INVALID_JWT);
       return {
         success: false,
         error: { code: error.code, message: error.toUserMessage() },
@@ -27,7 +27,7 @@ class MockUserService implements IUserService {
 
     const user = mockData.users.get(userId);
     if (!user) {
-      const error = new BPAYError(ErrorCode.USER_NOT_FOUND);
+      const error = new TransferError(ErrorCode.USER_NOT_FOUND);
       return {
         success: false,
         error: { code: error.code, message: error.toUserMessage() },

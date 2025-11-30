@@ -99,7 +99,7 @@ export const mockData = {
       },
       {
         id: 'contact2',
-        name: 'John Smith',
+        name: 'Sarah Johnson',
         contactType: 'PERSON',
         paymentInstruments: [
           {

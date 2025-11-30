@@ -1,18 +1,18 @@
-import { BPAYAgent } from '../agent/index.js';
+import { TransferAgent } from '../agent/index.js';
 import { ReadlineInterface } from './readline.js';
 import { StreamingOutput } from './streaming.js';
 import { colors, styles } from './colors.js';
 import { config } from '../config/index.js';
 
 export class CLI {
-  private agent: BPAYAgent;
+  private agent: TransferAgent;
   private rl: ReadlineInterface;
   private streaming: StreamingOutput;
   private threadId: string;
   private jwtToken: string;
 
   constructor() {
-    this.agent = new BPAYAgent();
+    this.agent = new TransferAgent();
     this.rl = new ReadlineInterface();
     this.streaming = new StreamingOutput();
     this.threadId = `session_${Date.now()}`;
@@ -25,7 +25,7 @@ export class CLI {
   private showWelcome(): void {
     console.log();
     console.log(styles.header('════════════════════════════════════════'));
-    console.log(styles.header('       BPAY Payment Assistant'));
+    console.log(styles.header('        Transfer Assistant'));
     console.log(styles.header('════════════════════════════════════════'));
     console.log();
     console.log(colors.dim('  Commands:'));
@@ -34,9 +34,9 @@ export class CLI {
     console.log(colors.dim('    help    - Show available commands'));
     console.log();
     console.log(colors.dim('  Example queries:'));
-    console.log(colors.dim('    "I want to pay my water bill"'));
-    console.log(colors.dim('    "Show my saved billers"'));
-    console.log(colors.dim('    "Add a new biller"'));
+    console.log(colors.dim('    "Transfer $100 to my savings account"'));
+    console.log(colors.dim('    "Send $50 to John"'));
+    console.log(colors.dim('    "Pay my electricity bill"'));
     console.log();
   }
 
@@ -50,7 +50,7 @@ export class CLI {
       case 'exit':
       case 'quit':
       case 'q':
-        console.log(colors.cyan('\nGoodbye! Thank you for using BPAY Assistant.\n'));
+        console.log(colors.cyan('\nGoodbye! Thank you for using Transfer Assistant.\n'));
         return true;
 
       case 'clear':
@@ -66,9 +66,9 @@ export class CLI {
         console.log(colors.white('  help           - Show this help message'));
         console.log();
         console.log(colors.cyan('What I can help with:'));
-        console.log(colors.white('  - Pay your bills (electricity, water, gas, phone, etc.)'));
-        console.log(colors.white('  - View your saved billers'));
-        console.log(colors.white('  - Add new billers to your account'));
+        console.log(colors.white('  - Transfer money between your own accounts'));
+        console.log(colors.white('  - Send money to your saved contacts'));
+        console.log(colors.white('  - Pay bills via BPAY'));
         console.log();
         return false;
 

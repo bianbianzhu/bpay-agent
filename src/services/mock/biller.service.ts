@@ -6,7 +6,7 @@ import type {
   ToolResult,
 } from '../../types/index.js';
 import { mockData, billerCodeNames } from './data.js';
-import { BPAYError, ErrorCode } from '../../utils/errors.js';
+import { TransferError, ErrorCode } from '../../utils/errors.js';
 
 const delay = (ms: number): Promise<void> =>
   new Promise(resolve => setTimeout(resolve, ms));
@@ -84,7 +84,7 @@ class MockBillerService implements IBillerService {
 
     // Validate biller code first
     if (!mockData.validBillerCodes.has(input.billerCode)) {
-      const error = new BPAYError(ErrorCode.INVALID_BILLER_CODE);
+      const error = new TransferError(ErrorCode.INVALID_BILLER_CODE);
       return {
         success: false,
         error: { code: error.code, message: error.toUserMessage() },
