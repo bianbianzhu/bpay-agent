@@ -1,4 +1,4 @@
-import type { User, BillerAccount, Payment } from '../../types/index.js';
+import type { User, BillerAccount, Payment, Contact } from '../../types/index.js';
 
 // In-memory mock data store
 export const mockData = {
@@ -69,6 +69,52 @@ export const mockData = {
   ]),
 
   payments: new Map<string, Payment>(),
+
+  contacts: new Map<string, Contact[]>([
+    ['user_001', [
+      {
+        id: 'contact1',
+        name: 'Coffee Supplier',
+        contactType: 'BUSINESS',
+        paymentInstruments: [
+          {
+            id: 'pi1',
+            details: {
+              __typename: 'BankAccountDetails',
+              bsb: '123456',
+              account: '987654321',
+              name: 'Bean Supplier',
+            },
+          },
+          {
+            id: 'pi2',
+            details: {
+              __typename: 'PaymentInstrumentBpayStaticCrnDetails',
+              billerName: 'Milk Supplier',
+              billerCode: '654321',
+              crn: '1234567890',
+            },
+          },
+        ],
+      },
+      {
+        id: 'contact2',
+        name: 'John Smith',
+        contactType: 'PERSON',
+        paymentInstruments: [
+          {
+            id: 'pi3',
+            details: {
+              __typename: 'BankAccountDetails',
+              bsb: '456789',
+              account: '789012345',
+              name: 'Paper Cup Supplier',
+            },
+          },
+        ],
+      },
+    ]],
+  ]),
 
   // Valid biller codes for validation
   validBillerCodes: new Set(['23796', '12345', '54321', '67890', '11111', '99999']),
