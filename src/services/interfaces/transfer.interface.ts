@@ -7,6 +7,7 @@ import type {
 
 export interface ITransferService {
   transferFundsDebitCardAccount(
+    userId: string,
     payerAccountUuid: string,
     payeeAccountUuid: string,
     amount: number,
@@ -14,6 +15,7 @@ export interface ITransferService {
   ): Promise<ToolResult<TransferResult>>;
 
   submitStaticCrnBpayPayment(
+    userId: string,
     debitCardAccountUuid: string,
     paymentInstrumentUuid: string,
     amount: number

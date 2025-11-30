@@ -3,8 +3,9 @@ import { transferBpaySchema } from './schemas/transfer-bpay.schema.js';
 import { transferService } from '../services/index.js';
 
 export const transferBpayTool = tool(
-  async ({ fromAccountId, paymentInstrumentId, amount }) => {
+  async ({ userId, fromAccountId, paymentInstrumentId, amount }) => {
     const result = await transferService.submitStaticCrnBpayPayment(
+      userId,
       fromAccountId,
       paymentInstrumentId,
       amount

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 export const transferExternalSchema = z.object({
+  userId: z.string().describe('User ID from pre-loaded context'),
   fromAccountId: z.string().describe('Source account ID from get_accounts'),
   paymentInstrumentId: z
     .string()

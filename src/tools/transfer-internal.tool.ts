@@ -3,8 +3,9 @@ import { transferInternalSchema } from './schemas/transfer-internal.schema.js';
 import { transferService } from '../services/index.js';
 
 export const transferInternalTool = tool(
-  async ({ fromAccountId, toAccountId, amount }) => {
+  async ({ userId, fromAccountId, toAccountId, amount }) => {
     const result = await transferService.transferFundsDebitCardAccount(
+      userId,
       fromAccountId,
       toAccountId,
       amount,
