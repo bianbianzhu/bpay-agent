@@ -2,7 +2,13 @@ import { ChatOpenAI } from '@langchain/openai';
 import { HumanMessage, AIMessage, SystemMessage, type BaseMessage } from 'langchain';
 import { StateGraph, START, MemorySaver, Annotation, messagesStateReducer } from '@langchain/langgraph';
 import { ToolNode } from '@langchain/langgraph/prebuilt';
-import { bpayTools } from '../tools/index.js';
+import {
+  transferInternalTool,
+  transferExternalTool,
+  transferBpayTool,
+} from '../tools/index.js';
+
+const transferTools = [transferInternalTool, transferExternalTool, transferBpayTool];
 import { BPAY_SYSTEM_PROMPT } from './prompts/system.prompt.js';
 import { config } from '../config/index.js';
 import { userService, accountService, contactService } from '../services/index.js';
@@ -43,14 +49,14 @@ export class BPAYAgent {
       configuration: {
         ...(config.OPENAI_BASE_URL && { baseURL: config.OPENAI_BASE_URL }),
       },
-    }).bindTools(bpayTools);
+    }).bindTools(transferTools);
 
     this.checkpointer = new MemorySaver();
     this.graph = this.createGraph();
   }
 
   private createGraph() {
-    const toolNode = new ToolNode(bpayTools);
+    const toolNode = new ToolNode(transferTools);
     const model = this.model;
 
     // Agent node - calls the LLM
