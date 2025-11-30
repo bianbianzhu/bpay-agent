@@ -4,6 +4,7 @@ import type {
   BpayPaymentResult,
   PayeeType,
   ToolResult,
+  Account,
 } from '../../types/index.js';
 import { mockData } from './data.js';
 
@@ -11,10 +12,10 @@ const delay = (ms: number): Promise<void> =>
   new Promise(resolve => setTimeout(resolve, ms));
 
 class MockTransferService implements ITransferService {
-  private getAccountBalance(userId: string, accountId: string): number | null {
+  private getAccount(userId: string, accountId: string): Account | null {
     const accounts = mockData.accounts.get(userId);
     const account = accounts?.find(a => a.id === accountId);
-    return account?.balance ?? null;
+    return account ?? null;
   }
 
   async transferFundsDebitCardAccount(
@@ -26,22 +27,33 @@ class MockTransferService implements ITransferService {
   ): Promise<ToolResult<TransferResult>> {
     await delay(100); // Simulate network latency
 
-    // Check balance
-    const balance = this.getAccountBalance(userId, payerAccountUuid);
+    // Get account to check type and balance
+    const account = this.getAccount(userId, payerAccountUuid);
 
-    if (balance === null) {
+    if (account === null) {
       return {
         success: false,
         error: { code: 'ACCOUNT_NOT_FOUND', message: 'Source account not found' },
       };
     }
 
-    if (balance < amount) {
+    // Validate account type for external transfers
+    if (payeeType === 'EXTERNAL' && account.type !== 'ZLR_DEBIT') {
+      return {
+        success: false,
+        error: {
+          code: 'INVALID_ACCOUNT_TYPE',
+          message: 'External transfers can only be made from debit accounts',
+        },
+      };
+    }
+
+    if (account.balance < amount) {
       return {
         success: false,
         error: {
           code: 'INSUFFICIENT_FUNDS',
-          message: `Insufficient funds. Available: $${balance.toFixed(2)}`,
+          message: `Insufficient funds. Available: $${account.balance.toFixed(2)}`,
         },
       };
     }
@@ -64,22 +76,33 @@ class MockTransferService implements ITransferService {
   ): Promise<ToolResult<BpayPaymentResult>> {
     await delay(100); // Simulate network latency
 
-    // Check balance
-    const balance = this.getAccountBalance(userId, debitCardAccountUuid);
+    // Get account to check type and balance
+    const account = this.getAccount(userId, debitCardAccountUuid);
 
-    if (balance === null) {
+    if (account === null) {
       return {
         success: false,
         error: { code: 'ACCOUNT_NOT_FOUND', message: 'Source account not found' },
       };
     }
 
-    if (balance < amount) {
+    // Validate account type for BPAY payments
+    if (account.type !== 'ZLR_DEBIT') {
+      return {
+        success: false,
+        error: {
+          code: 'INVALID_ACCOUNT_TYPE',
+          message: 'BPAY payments can only be made from debit accounts',
+        },
+      };
+    }
+
+    if (account.balance < amount) {
       return {
         success: false,
         error: {
           code: 'INSUFFICIENT_FUNDS',
-          message: `Insufficient funds. Available: $${balance.toFixed(2)}`,
+          message: `Insufficient funds. Available: $${account.balance.toFixed(2)}`,
         },
       };
     }
