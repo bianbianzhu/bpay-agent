@@ -6,7 +6,7 @@ import type {
   ToolResult,
   Account,
 } from '../../types/index.js';
-import { mockData } from './data.js';
+import { mockData, persistData } from './data.js';
 
 const delay = (ms: number): Promise<void> =>
   new Promise(resolve => setTimeout(resolve, ms));
@@ -58,6 +58,20 @@ class MockTransferService implements ITransferService {
       };
     }
 
+    // Update balances
+    account.balance -= amount;
+
+    // For internal transfers, add to destination account
+    if (payeeType === 'INTERNAL') {
+      const destAccount = this.getAccount(userId, payeeAccountUuid);
+      if (destAccount) {
+        destAccount.balance += amount;
+      }
+    }
+
+    // Persist changes to JSON
+    persistData();
+
     // Mock successful transfer
     return {
       success: true,
@@ -106,6 +120,12 @@ class MockTransferService implements ITransferService {
         },
       };
     }
+
+    // Update balance
+    account.balance -= amount;
+
+    // Persist changes to JSON
+    persistData();
 
     // Mock successful BPAY payment
     return {

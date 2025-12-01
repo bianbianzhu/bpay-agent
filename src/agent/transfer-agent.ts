@@ -31,8 +31,8 @@ export class TransferAgent {
   private model;
   private graph;
   private checkpointer: MemorySaver;
+  private userId: string | null = null;
   private userContext: string | null = null;
-  private accountsContext: string | null = null;
   private contactsContext: string | null = null;
 
   constructor(apiKey?: string) {
@@ -96,12 +96,8 @@ export class TransferAgent {
   async initializeContext(jwtToken: string): Promise<void> {
     const userResult = await userService.getUserFromToken(jwtToken);
     if (userResult.success && userResult.data) {
+      this.userId = userResult.data.id;
       this.userContext = JSON.stringify(userResult.data);
-
-      const accountsResult = await accountService.getDebitCardAccountsV2(userResult.data.id);
-      if (accountsResult.success) {
-        this.accountsContext = JSON.stringify(accountsResult.data);
-      }
 
       const contactsResult = await contactService.getContacts(userResult.data.id);
       if (contactsResult.success) {
@@ -111,16 +107,24 @@ export class TransferAgent {
   }
 
   /**
-   * Build context messages from pre-fetched data with LLM-readable prefixes
+   * Build context messages with fresh account data
+   * User and contacts are cached, but accounts are fetched fresh each time
+   * to reflect balance changes from transfers
    */
-  private buildContextMessages(): HumanMessage[] {
+  private async buildContextMessages(): Promise<HumanMessage[]> {
     const messages: HumanMessage[] = [];
     if (this.userContext) {
       messages.push(new HumanMessage(`[Current User]\n${this.userContext}`));
     }
-    if (this.accountsContext) {
-      messages.push(new HumanMessage(`[User's Bank Accounts]\n${this.accountsContext}`));
+
+    // Always fetch fresh account data to reflect balance updates
+    if (this.userId) {
+      const accountsResult = await accountService.getDebitCardAccountsV2(this.userId);
+      if (accountsResult.success) {
+        messages.push(new HumanMessage(`[User's Bank Accounts]\n${JSON.stringify(accountsResult.data)}`));
+      }
     }
+
     if (this.contactsContext) {
       messages.push(new HumanMessage(`[User's Contacts]\n${this.contactsContext}`));
     }
@@ -136,9 +140,10 @@ export class TransferAgent {
   ): AsyncGenerator<StreamEvent> {
     const configurable = { configurable: { thread_id: threadId } };
 
-    // Build input with pre-fetched context messages followed by user message
+    // Build input with fresh context messages followed by user message
+    const contextMessages = await this.buildContextMessages();
     const input = {
-      messages: [...this.buildContextMessages(), new HumanMessage(userMessage)],
+      messages: [...contextMessages, new HumanMessage(userMessage)],
     };
 
     try {
@@ -186,9 +191,10 @@ export class TransferAgent {
   ): Promise<string> {
     const configurable = { configurable: { thread_id: threadId } };
 
-    // Build input with pre-fetched context messages followed by user message
+    // Build input with fresh context messages followed by user message
+    const contextMessages = await this.buildContextMessages();
     const result = await this.graph.invoke(
-      { messages: [...this.buildContextMessages(), new HumanMessage(userMessage)] },
+      { messages: [...contextMessages, new HumanMessage(userMessage)] },
       configurable
     );
 
